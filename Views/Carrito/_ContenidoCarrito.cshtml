@@ -1,0 +1,110 @@
+﻿@model List<ByteStore.Models.ItemCarrito>
+
+@{
+    decimal total = Model.Sum(item => item.Subtotal);
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center mt-4">
+        <p class="text-secondary">
+            Tu carrito está vacío.
+        </p>
+        <a asp-controller="Productos"
+           asp-action="Index"
+           class="btn btn-outline-success">
+            Explorar productos
+        </a>
+    </div>
+}
+else
+{
+    @foreach (var item in Model)
+    {
+        <div class="border-bottom border-secondary py-3">
+
+            <h6 class="fw-bold">
+                @item.Nombre
+            </h6>
+
+            <p class="text-success mb-2">
+                $ @item.Precio.ToString("N2")
+            </p>
+            
+            <form asp-controller="Carrito"
+                  asp-action="Actualizar"
+                  method="post"
+                  class="d-flex align-items-center gap-2 mb-3">
+
+                <input type="hidden"
+                       name="productoId"
+                       value="@item.ProductoId" />
+
+                <label class="form-label mb-0">
+                    Cantidad:
+                </label>
+
+                <input type="number"
+                       name="cantidad"
+                       value="@item.Cantidad"
+                       min="1"
+                       class="form-control form-control-sm"
+                       style="width: 75px;"
+                       required />
+
+                <button type="submit"
+                        class="d-none"
+                        tabindex="-1"
+                        aria-hidden="true">
+                </button>
+
+            </form>
+
+            <p class="fw-bold">
+                Subtotal: $ @item.Subtotal.ToString("N2")
+            </p>
+
+            <form asp-controller="Carrito"
+                  asp-action="Eliminar"
+                  method="post">
+
+                <input type="hidden"
+                       name="productoId"
+                       value="@item.ProductoId" />
+
+                <button type="submit"
+                        class="btn btn-outline-danger btn-sm">
+                    Eliminar
+                </button>
+            </form>
+
+        </div>
+    }
+
+    <div class="mt-4">
+
+        <h4 class="text-success">
+            Total: $ @total.ToString("N2")
+        </h4>
+
+        <button type="button"
+                class="btn btn-outline-light w-100 mt-3"
+                data-bs-dismiss="offcanvas">
+            Seguir comprando
+        </button>
+
+        
+        <form asp-controller="Pedidos"
+              asp-action="Confirmar"
+              method="post"
+              class="mt-2">
+
+            <button type="submit"
+                    class="btn btn-success w-100">
+                Finalizar compra
+            </button>
+
+        </form>
+
+    </div>
+}

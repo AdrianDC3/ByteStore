@@ -1,0 +1,123 @@
+
+/* ===== CONFIGURACION GENERAL ===== */
+
+html {
+    font-size: 14px;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* ===== ESTRUCTURA GLOBAL CON FLEXBOX ===== */
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #121212;
+    color: #f5f5f5;
+}
+
+    /* La navbar mantiene su altura natural */
+
+    body > header {
+        flex-shrink: 0;
+    }
+
+/* El contenido principal ocupa el espacio disponible.
+   Si la pagina tiene muchos productos o pedidos,
+   puede crecer sin superponerse al footer. */
+
+.layout-contenido {
+    flex: 1 0 auto;
+    min-width: 0;
+}
+
+/* ===== ESTILOS DE FORMULARIOS ===== */
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--bs-secondary-color);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+/* ===== BARRA DE NAVEGACION BYTESTORE ===== */
+
+.navbar {
+    background-color: #1e1e1e !important;
+}
+
+.navbar-brand {
+    color: #00c853 !important;
+}
+
+.navbar .nav-link {
+    color: #f5f5f5 !important;
+}
+
+    .navbar .nav-link:hover {
+        color: #00c853 !important;
+    }
+
+/* ===== PIE DE PAGINA BYTESTORE ===== */
+
+.footer {
+    width: 100%;
+    background-color: #1e1e1e;
+    color: #aaaaaa !important;
+    border-top: 1px solid #333333 !important;
+    /* Evita que el footer flote sobre el contenido */
+    position: static !important;
+    bottom: auto !important;
+    /* Mantiene el footer al final del Flexbox */
+    flex-shrink: 0;
+    /* Conserva el tamaño original de la letra */
+    font-size: inherit;
+    line-height: normal;
+    white-space: normal;
+    padding: 0;
+}
+
+    /* Footer compacto:
+   solamente 5px arriba y 5px abajo */
+
+    .footer .container {
+        padding-top: 5px !important;
+        padding-bottom: 5px !important;
+    }
+
+    .footer a {
+        color: #00c853;
+    }
+
+/* ===== CARRITO LATERAL BYTESTORE ===== */
+
+.offcanvas {
+    width: 420px !important;
+    max-width: 100%;
+    background-color: #1e1e1e !important;
+}
+
+.offcanvas-backdrop.show {
+    opacity: 0.65;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+}

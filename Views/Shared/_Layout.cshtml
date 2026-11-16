@@ -1,0 +1,795 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - ByteStore</title>
+
+    <script type="importmap"></script>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/site.css"
+          asp-append-version="true" />
+
+    <link rel="stylesheet"
+          href="~/ByteStore.styles.css"
+          asp-append-version="true" />
+</head>
+
+<body>
+
+    <!-- BARRA DE NAVEGACION -->
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark border-bottom border-success mb-3">
+
+            <div class="container-fluid">
+
+                <!-- LOGO BYTESTORE -->
+                <a class="navbar-brand d-flex align-items-center"
+                   asp-area=""
+                   asp-controller="Home"
+                   asp-action="Index"
+                   aria-label="ByteStore - Inicio">
+
+                    <img src="~/images/logo-navbar.png"
+                         asp-append-version="true"
+                         alt="ByteStore"
+                         style="height: 42px; width: auto; max-width: 190px; object-fit: contain;" />
+
+                </a>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                    <ul class="navbar-nav flex-grow-1">
+
+                        <!-- CARRITO -->
+                        <li class="nav-item">
+
+                            <button class="nav-link text-light d-flex align-items-center gap-1"
+                                    type="button"
+                                    data-bs-toggle="offcanvas"
+                                    data-bs-target="#carritoLateral"
+                                    aria-controls="carritoLateral"
+                                    aria-label="Abrir carrito de compras">
+
+                                <span aria-hidden="true">🛒</span>
+
+                                <span id="contadorCarrito"
+                                      class="badge bg-success rounded-pill d-none"
+                                      aria-label="Unidades en el carrito">
+                                    0
+                                </span>
+
+                            </button>
+
+                        </li>
+
+                        <!-- INICIO -->
+                        <li class="nav-item">
+
+                            <a class="nav-link text-light"
+                               asp-area=""
+                               asp-controller="Home"
+                               asp-action="Index">
+                                Home
+                            </a>
+
+                        </li>
+
+                        <!-- PRODUCTOS -->
+                        <li class="nav-item">
+
+                            <a class="nav-link text-light"
+                               asp-area=""
+                               asp-controller="Productos"
+                               asp-action="Index">
+                                Productos
+                            </a>
+
+                        </li>
+
+                    </ul>
+
+                    <!-- MENU DE USUARIO -->
+                    <partial name="_LoginPartial" />
+
+                </div>
+
+            </div>
+
+        </nav>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- Flexbox utiliza layout-contenido para evitar
+         que el footer se superponga al contenido. -->
+
+    <div class="container layout-contenido">
+
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+
+    </div>
+
+    <!-- CARRITO LATERAL -->
+    <div class="offcanvas offcanvas-end text-bg-dark"
+         tabindex="-1"
+         id="carritoLateral"
+         aria-labelledby="tituloCarrito">
+
+        <div class="offcanvas-header border-bottom border-secondary">
+
+            <h5 class="offcanvas-title" id="tituloCarrito">
+                🛒 Mi carrito
+            </h5>
+
+            <button type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="offcanvas"
+                    aria-label="Cerrar">
+            </button>
+
+        </div>
+
+        <div class="offcanvas-body">
+
+            <div id="contenidoCarrito">
+                <p class="text-secondary">
+                    Cargando carrito...
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL DE INICIO DE SESION -->
+    <div class="modal fade"
+         id="modalLogin"
+         tabindex="-1"
+         aria-labelledby="tituloModalLogin"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content bg-dark text-light border-secondary">
+
+                <div class="modal-header border-secondary">
+
+                    <div>
+                        <h5 class="modal-title text-success fw-bold"
+                            id="tituloModalLogin">
+                            ⚡ ByteStore
+                        </h5>
+
+                        <h6 class="text-light mt-2 mb-0">
+                            Iniciar sesión
+                        </h6>
+                    </div>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                            aria-label="Cerrar">
+                    </button>
+
+                </div>
+
+                <div class="modal-body p-4">
+
+                    <form id="formLoginModal"
+                          asp-area=""
+                          asp-controller="LoginModal"
+                          asp-action="IniciarSesion"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div id="errorLoginModal"
+                             class="alert alert-danger d-none"
+                             role="alert"
+                             aria-live="polite">
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label for="loginEmail"
+                                   class="form-label">
+                                Correo electrónico
+                            </label>
+
+                            <input type="email"
+                                   id="loginEmail"
+                                   name="Input.Email"
+                                   class="form-control"
+                                   placeholder="correo@ejemplo.com"
+                                   autocomplete="username"
+                                   required />
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label for="loginPassword"
+                                   class="form-label">
+                                Contraseña
+                            </label>
+
+                            <input type="password"
+                                   id="loginPassword"
+                                   name="Input.Password"
+                                   class="form-control"
+                                   autocomplete="current-password"
+                                   required />
+
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center gap-2 mb-4">
+
+                            <div class="form-check">
+
+                                <input type="checkbox"
+                                       id="loginRecordarme"
+                                       name="Input.RememberMe"
+                                       value="true"
+                                       class="form-check-input" />
+
+                                <label for="loginRecordarme"
+                                       class="form-check-label">
+                                    Recordarme
+                                </label>
+
+                            </div>
+
+                            <a asp-area="Identity"
+                               asp-page="/Account/ForgotPassword"
+                               class="text-success text-decoration-none small">
+                                ¿Olvidaste tu contraseña?
+                            </a>
+
+                        </div>
+
+                        <button type="submit"
+                                id="botonLoginModal"
+                                class="btn btn-success w-100 fw-semibold">
+                            Iniciar sesión
+                        </button>
+
+                    </form>
+
+                </div>
+
+                <div class="modal-footer border-secondary justify-content-center">
+
+                    <span class="text-secondary">
+                        ¿No tenés cuenta?
+                    </span>
+
+                    <button type="button"
+                            class="btn btn-link text-success text-decoration-none fw-semibold p-0"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalRegistro">
+                        Registrate
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- MODAL DE REGISTRO -->
+    <div class="modal fade"
+         id="modalRegistro"
+         tabindex="-1"
+         aria-labelledby="tituloModalRegistro"
+         aria-hidden="true">
+
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content bg-dark text-light border-secondary">
+
+                <div class="modal-header border-secondary">
+
+                    <div>
+                        <h5 class="modal-title text-success fw-bold"
+                            id="tituloModalRegistro">
+                            ⚡ ByteStore
+                        </h5>
+
+                        <h6 class="text-light mt-2 mb-0">
+                            Crear cuenta
+                        </h6>
+                    </div>
+
+                    <button type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                            aria-label="Cerrar">
+                    </button>
+
+                </div>
+
+                <div class="modal-body p-4">
+
+                    <!-- MENSAJES DEL REGISTRO -->
+                    <div id="mensajeRegistro"
+                         class="alert d-none"
+                         role="alert"
+                         aria-live="polite">
+                    </div>
+
+                    <!-- FORMULARIO DE REGISTRO -->
+                    <form id="formRegistroModal"
+                          asp-area=""
+                          asp-controller="RegistroModal"
+                          asp-action="Registrar"
+                          method="post">
+
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+
+                            <label for="registroEmail"
+                                   class="form-label">
+                                Correo electrónico
+                            </label>
+
+                            <input type="email"
+                                   id="registroEmail"
+                                   name="Email"
+                                   class="form-control"
+                                   placeholder="correo@ejemplo.com"
+                                   autocomplete="email"
+                                   required />
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label for="registroPassword"
+                                   class="form-label">
+                                Contraseña
+                            </label>
+
+                            <input type="password"
+                                   id="registroPassword"
+                                   name="Password"
+                                   class="form-control"
+                                   autocomplete="new-password"
+                                   required />
+
+                        </div>
+
+                        <div class="mb-4">
+
+                            <label for="registroConfirmPassword"
+                                   class="form-label">
+                                Confirmar contraseña
+                            </label>
+
+                            <input type="password"
+                                   id="registroConfirmPassword"
+                                   name="ConfirmPassword"
+                                   class="form-control"
+                                   autocomplete="new-password"
+                                   required />
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-success w-100 fw-semibold">
+                            Crear cuenta
+                        </button>
+
+                    </form>
+
+                    <!-- CONFIRMACION SIMULADA -->
+                    <form id="formConfirmarCorreo"
+                          asp-area=""
+                          asp-controller="RegistroModal"
+                          asp-action="ConfirmarCorreo"
+                          method="post"
+                          class="d-none">
+
+                        @Html.AntiForgeryToken()
+
+                        <p class="text-secondary small">
+                            Este es un registro de demostración.
+                            No se enviará ningún correo electrónico.
+                        </p>
+
+                        <button type="submit"
+                                class="btn btn-success w-100 fw-semibold">
+                            Confirmar correo (simulación)
+                        </button>
+
+                    </form>
+
+                    <!-- PASAR AL LOGIN DESPUES DE CONFIRMAR -->
+                    <div id="registroFinalizado"
+                         class="d-none">
+
+                        <button type="button"
+                                class="btn btn-success w-100 fw-semibold"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modalLogin">
+                            Ir a iniciar sesión
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-secondary justify-content-center">
+
+                    <span class="text-secondary">
+                        ¿Ya tenés cuenta?
+                    </span>
+
+                    <button type="button"
+                            class="btn btn-link text-success text-decoration-none fw-semibold p-0"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalLogin">
+                        Iniciar sesión
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- PIE DE PAGINA -->
+    <footer class="border-top footer text-muted">
+
+        <div class="container text-center py-3">
+            &copy; 2026 - ByteStore | Desarrollado por Adrian Diaz Casas
+        </div>
+
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/js/site.js"
+            asp-append-version="true"></script>
+
+    <script src="~/js/carrito.js"
+            asp-append-version="true"></script>
+
+    <!-- LOGIN Y REGISTRO MODAL -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            // ENLACES DE NAVEGACION
+            const enlacesLogin = document.querySelectorAll(
+                'a[href*="/Identity/Account/Login"]'
+            );
+
+            const enlacesRegistro = document.querySelectorAll(
+                'a[href*="/Identity/Account/Register"]'
+            );
+
+            enlacesLogin.forEach(function (enlace) {
+                enlace.setAttribute("data-bs-toggle", "modal");
+                enlace.setAttribute("data-bs-target", "#modalLogin");
+            });
+
+            enlacesRegistro.forEach(function (enlace) {
+                enlace.setAttribute("data-bs-toggle", "modal");
+                enlace.setAttribute("data-bs-target", "#modalRegistro");
+            });
+
+            // INICIO DE SESION
+            const formularioLogin =
+                document.getElementById("formLoginModal");
+
+            const modalLogin =
+                document.getElementById("modalLogin");
+
+            if (modalLogin instanceof HTMLElement) {
+
+                modalLogin.addEventListener("show.bs.modal", function () {
+
+                    const mensaje =
+                        document.getElementById("errorLoginModal");
+
+                    if (!(mensaje instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    mensaje.textContent = "";
+                    mensaje.classList.add("d-none");
+                });
+            }
+
+            if (formularioLogin instanceof HTMLFormElement) {
+
+                formularioLogin.addEventListener("submit", async function (evento) {
+
+                    evento.preventDefault();
+
+                    const formulario = evento.currentTarget;
+
+                    const boton =
+                        document.getElementById("botonLoginModal");
+
+                    const mensaje =
+                        document.getElementById("errorLoginModal");
+
+                    if (!(formulario instanceof HTMLFormElement) ||
+                        !(boton instanceof HTMLButtonElement) ||
+                        !(mensaje instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    mensaje.textContent = "";
+                    mensaje.classList.add("d-none");
+
+                    boton.disabled = true;
+                    boton.textContent = "Iniciando sesión...";
+
+                    try {
+
+                        const respuesta = await fetch(formulario.action, {
+                            method: "POST",
+                            body: new FormData(formulario),
+                            credentials: "same-origin",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        });
+
+                        if (!respuesta.ok) {
+                            throw new Error("Error en el servidor");
+                        }
+
+                        const resultado = await respuesta.json();
+
+                        if (resultado.exito === true) {
+                            window.location.reload();
+                            return;
+                        }
+
+                        mensaje.textContent =
+                            typeof resultado.mensaje === "string"
+                                ? resultado.mensaje
+                                : "No se pudo iniciar sesión.";
+
+                        mensaje.classList.remove("d-none");
+
+                    }
+                    catch (error) {
+
+                        mensaje.textContent =
+                            "No se pudo procesar el inicio de sesión. Intentá nuevamente.";
+
+                        mensaje.classList.remove("d-none");
+
+                    }
+                    finally {
+
+                        boton.disabled = false;
+                        boton.textContent = "Iniciar sesión";
+
+                    }
+                });
+            }
+
+            // REGISTRO DE USUARIO
+            const formularioRegistro =
+                document.getElementById("formRegistroModal");
+
+            if (formularioRegistro instanceof HTMLFormElement) {
+
+                formularioRegistro.addEventListener("submit", async function (evento) {
+
+                    evento.preventDefault();
+
+                    const formulario = evento.currentTarget;
+
+                    const mensaje =
+                        document.getElementById("mensajeRegistro");
+
+                    const formularioConfirmacion =
+                        document.getElementById("formConfirmarCorreo");
+
+                    if (!(formulario instanceof HTMLFormElement) ||
+                        !(mensaje instanceof HTMLElement) ||
+                        !(formularioConfirmacion instanceof HTMLFormElement)) {
+                        return;
+                    }
+
+                    const boton = formulario.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                    if (!(boton instanceof HTMLButtonElement)) {
+                        return;
+                    }
+
+                    mensaje.className = "alert d-none";
+                    mensaje.textContent = "";
+
+                    boton.disabled = true;
+                    boton.textContent = "Creando cuenta...";
+
+                    try {
+
+                        const respuesta = await fetch(formulario.action, {
+                            method: "POST",
+                            body: new FormData(formulario),
+                            credentials: "same-origin",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        });
+
+                        if (!respuesta.ok) {
+                            throw new Error("Error en el servidor");
+                        }
+
+                        const resultado = await respuesta.json();
+
+                        mensaje.textContent =
+                            typeof resultado.mensaje === "string"
+                                ? resultado.mensaje
+                                : "No se pudo completar el registro.";
+
+                        if (resultado.exito === true) {
+
+                            mensaje.className = "alert alert-success";
+
+                            formulario.classList.add("d-none");
+
+                            formularioConfirmacion.classList.remove("d-none");
+
+                        }
+                        else {
+
+                            mensaje.className = "alert alert-danger";
+
+                        }
+
+                    }
+                    catch (error) {
+
+                        mensaje.textContent =
+                            "Ocurrió un problema al registrar la cuenta.";
+
+                        mensaje.className = "alert alert-danger";
+
+                    }
+                    finally {
+
+                        boton.disabled = false;
+                        boton.textContent = "Crear cuenta";
+
+                    }
+
+                });
+            }
+
+            // CONFIRMACION SIMULADA DEL CORREO
+            const formularioConfirmar =
+                document.getElementById("formConfirmarCorreo");
+
+            if (formularioConfirmar instanceof HTMLFormElement) {
+
+                formularioConfirmar.addEventListener("submit", async function (evento) {
+
+                    evento.preventDefault();
+
+                    const formulario = evento.currentTarget;
+
+                    const mensaje =
+                        document.getElementById("mensajeRegistro");
+
+                    const registroFinalizado =
+                        document.getElementById("registroFinalizado");
+
+                    if (!(formulario instanceof HTMLFormElement) ||
+                        !(mensaje instanceof HTMLElement) ||
+                        !(registroFinalizado instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const boton = formulario.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                    if (!(boton instanceof HTMLButtonElement)) {
+                        return;
+                    }
+
+                    boton.disabled = true;
+                    boton.textContent = "Confirmando...";
+
+                    try {
+
+                        const respuesta = await fetch(formulario.action, {
+                            method: "POST",
+                            body: new FormData(formulario),
+                            credentials: "same-origin",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        });
+
+                        if (!respuesta.ok) {
+                            throw new Error("Error en el servidor");
+                        }
+
+                        const resultado = await respuesta.json();
+
+                        mensaje.textContent =
+                            typeof resultado.mensaje === "string"
+                                ? resultado.mensaje
+                                : "No se pudo confirmar el correo.";
+
+                        if (resultado.exito === true) {
+
+                            mensaje.className = "alert alert-success";
+
+                            formulario.classList.add("d-none");
+
+                            registroFinalizado.classList.remove("d-none");
+
+                        }
+                        else {
+
+                            mensaje.className = "alert alert-danger";
+
+                        }
+
+                    }
+                    catch (error) {
+
+                        mensaje.textContent =
+                            "Ocurrió un problema al confirmar el correo.";
+
+                        mensaje.className = "alert alert-danger";
+
+                    }
+                    finally {
+
+                        boton.disabled = false;
+                        boton.textContent = "Confirmar correo (simulación)";
+
+                    }
+
+                });
+            }
+
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

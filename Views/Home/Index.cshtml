@@ -1,0 +1,326 @@
+﻿@{
+    ViewData["Title"] = "Inicio";
+}
+
+<style>
+    .home-hero {
+        background: linear-gradient(120deg, #18271e, #111614);
+        border: 1px solid #31513a;
+        border-radius: 18px;
+        padding: 35px;
+    }
+
+    .home-titulo {
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .home-verde {
+        color: #00c853;
+    }
+
+    .home-logo-principal {
+        display: block;
+        width: 100%;
+        max-width: 430px;
+        height: auto;
+        margin: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 0 18px rgba(0, 200, 83, 0.15));
+    }
+
+    .home-carrusel {
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid #343a36;
+    }
+
+    .home-slide {
+        height: 360px;
+        position: relative;
+        background: #181818;
+    }
+
+        .home-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .home-slide::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient( 90deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.6) 48%, rgba(0, 0, 0, 0.12) );
+        }
+
+    .home-slide-contenido {
+        position: absolute;
+        z-index: 2;
+        top: 50%;
+        left: 9%;
+        transform: translateY(-50%);
+        max-width: 480px;
+        padding-right: 15px;
+    }
+
+        .home-slide-contenido h3 {
+            font-weight: 750;
+            font-size: clamp(1.6rem, 3vw, 2.5rem);
+        }
+
+    .home-cta {
+        background: linear-gradient(110deg, #173321, #102018);
+        border: 1px solid rgba(0, 200, 83, 0.3);
+        border-radius: 18px;
+    }
+
+    @@media (max-width: 767px) {
+        .home-hero {
+            padding: 25px;
+        }
+
+        .home-logo-principal {
+            max-width: 320px;
+        }
+
+        .home-slide {
+            height: 310px;
+        }
+
+        .home-slide-contenido {
+            left: 12%;
+            right: 10%;
+        }
+    }
+</style>
+
+<div class="container pb-5">
+
+    <!-- PANEL PRINCIPAL -->
+    <section class="home-hero my-4">
+
+        <div class="row align-items-center g-4">
+
+            <div class="col-lg-7">
+
+                <h1 class="home-titulo display-5 text-light">
+                    Bienvenido a
+                    <span class="home-verde">ByteStore</span>
+                </h1>
+
+                <p class="text-secondary lead mt-3 mb-4">
+                    Componentes, periféricos y tecnología
+                    para llevar tu setup al siguiente nivel.
+                </p>
+
+                <a asp-controller="Productos"
+                   asp-action="Index"
+                   class="btn btn-success btn-lg fw-semibold px-4">
+                    Explorar catálogo
+                </a>
+
+            </div>
+
+            <div class="col-lg-5 text-center">
+
+                <img src="~/images/logo-principal.png"
+                     asp-append-version="true"
+                     class="home-logo-principal"
+                     alt="ByteStore, logo con rayo verde"
+                     loading="eager" />
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- CARRUSEL -->
+    <section class="mt-5">
+
+        <div class="mb-4">
+
+            <h2 class="fw-bold text-light mb-1">
+                Descubrí nuestra tecnología
+            </h2>
+
+            <p class="text-secondary mb-0">
+                Todo lo que necesitás para tu computadora.
+            </p>
+
+        </div>
+
+        <div id="carruselByteStore"
+             class="carousel slide home-carrusel"
+             data-bs-ride="carousel"
+             data-bs-interval="5000">
+
+            <div class="carousel-indicators">
+
+                <button type="button"
+                        data-bs-target="#carruselByteStore"
+                        data-bs-slide-to="0"
+                        class="active"
+                        aria-current="true"
+                        aria-label="Gaming">
+                </button>
+
+                <button type="button"
+                        data-bs-target="#carruselByteStore"
+                        data-bs-slide-to="1"
+                        aria-label="Componentes">
+                </button>
+
+                <button type="button"
+                        data-bs-target="#carruselByteStore"
+                        data-bs-slide-to="2"
+                        aria-label="Hardware">
+                </button>
+
+            </div>
+
+            <div class="carousel-inner">
+
+                <!-- GAMING -->
+                <div class="carousel-item active">
+
+                    <div class="home-slide">
+
+                        <img src="https://images.unsplash.com/photo-1636489953081-c4ebbd50fa3a?auto=format&amp;fit=crop&amp;w=1400&amp;q=85"
+                             alt="Setup gaming con monitor e iluminación RGB"
+                             fetchpriority="high" />
+
+                        <div class="home-slide-contenido">
+
+                            <h3 class="text-light">
+                                Tu setup, a otro nivel.
+                            </h3>
+
+                            <p class="text-light">
+                                Tecnología para disfrutar
+                                cada partida.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- COMPONENTES -->
+                <div class="carousel-item">
+
+                    <div class="home-slide">
+
+                        <img src="https://images.unsplash.com/photo-1770932588917-42c0ecd3f210?auto=format&amp;fit=crop&amp;w=1400&amp;q=85"
+                             alt="Tarjeta gráfica instalada en una computadora"
+                             loading="lazy" />
+
+                        <div class="home-slide-contenido">
+
+                            <h3 class="text-light">
+                                Potenciá tu PC.
+                            </h3>
+
+                            <p class="text-light">
+                                Componentes para mejorar
+                                el rendimiento de tu equipo.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- HARDWARE -->
+                <div class="carousel-item">
+
+                    <div class="home-slide">
+
+                        <img src="https://images.unsplash.com/photo-1754928338671-f6acf67d2d89?auto=format&amp;fit=crop&amp;w=1400&amp;q=85"
+                             alt="Interior de una computadora con iluminación RGB"
+                             loading="lazy" />
+
+                        <div class="home-slide-contenido">
+
+                            <h3 class="text-light">
+                                Hardware para tu próxima actualización.
+                            </h3>
+
+                            <p class="text-light">
+                                Encontrá tecnología para
+                                armar tu equipo ideal.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <button class="carousel-control-prev"
+                    type="button"
+                    data-bs-target="#carruselByteStore"
+                    data-bs-slide="prev"
+                    aria-label="Anterior">
+
+                <span class="carousel-control-prev-icon"
+                      aria-hidden="true">
+                </span>
+
+            </button>
+
+            <button class="carousel-control-next"
+                    type="button"
+                    data-bs-target="#carruselByteStore"
+                    data-bs-slide="next"
+                    aria-label="Siguiente">
+
+                <span class="carousel-control-next-icon"
+                      aria-hidden="true">
+                </span>
+
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- PANEL FINAL -->
+    <section class="home-cta p-4 p-md-5 my-5">
+
+        <div class="row align-items-center g-4">
+
+            <div class="col-lg-8">
+
+                <h2 class="fw-bold text-light mb-3">
+                    Tu próximo upgrade empieza acá.
+                </h2>
+
+                <p class="text-secondary mb-0">
+                    Explorá nuestro catálogo de tecnología
+                    y encontrá los productos ideales para tu setup.
+                </p>
+
+            </div>
+
+            <div class="col-lg-4 text-lg-end">
+
+                <a asp-controller="Productos"
+                   asp-action="Index"
+                   class="btn btn-success btn-lg px-4 fw-semibold">
+                    Ver todos los productos
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
