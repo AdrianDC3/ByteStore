@@ -1,0 +1,37 @@
+﻿<section class="home-hero my-4">
+
+    <div class="row align-items-center g-4">
+
+        <div class="col-lg-7">
+
+            <h1 class="home-titulo display-5 text-light">
+                Bienvenido a
+                <span class="home-verde">ByteStore</span>
+            </h1>
+
+            <p class="text-secondary lead mt-3 mb-4">
+                Componentes, periféricos y tecnología
+                para llevar tu setup al siguiente nivel.
+            </p>
+
+            <a asp-controller="Productos"
+               asp-action="Index"
+               class="btn btn-success btn-lg fw-semibold px-4">
+                Explorar catálogo
+            </a>
+
+        </div>
+
+        <div class="col-lg-5 text-center">
+
+            <img src="~/images/logo-principal.png"
+                 asp-append-version="true"
+                 class="home-logo-principal"
+                 alt="ByteStore, logo con rayo verde"
+                 loading="eager" />
+
+        </div>
+
+    </div>
+
+</section>

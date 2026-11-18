@@ -1,0 +1,89 @@
+﻿/* ==========================================
+   BYTESTORE - DETALLE DE PRODUCTO
+========================================== */
+
+
+/* TARJETA PRINCIPAL */
+
+.detalle-card {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+
+/* IMAGEN DEL PRODUCTO */
+
+.detalle-imagen-contenedor {
+    background-color: #ffffff;
+    border-radius: 12px;
+    min-height: 400px;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.detalle-imagen {
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    transition: transform 0.25s ease;
+}
+
+    .detalle-imagen:hover {
+        transform: scale(1.04);
+    }
+
+
+/* INFORMACION */
+
+.detalle-nombre {
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.detalle-etiqueta {
+    font-size: 0.9rem;
+    color: #adb5bd;
+}
+
+.detalle-descripcion {
+    line-height: 1.7;
+    color: #dee2e6;
+}
+
+.detalle-precio {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.detalle-stock {
+    font-size: 0.95rem;
+}
+
+
+/* FORMULARIO DEL CARRITO */
+
+.detalle-cantidad {
+    max-width: 120px;
+}
+
+
+/* DISEÑO RESPONSIVE */
+
+@media (max-width: 767px) {
+
+    .detalle-imagen-contenedor {
+        min-height: 280px;
+        padding: 20px;
+    }
+
+    .detalle-imagen {
+        max-height: 300px;
+    }
+
+    .detalle-precio {
+        font-size: 1.7rem;
+    }
+}

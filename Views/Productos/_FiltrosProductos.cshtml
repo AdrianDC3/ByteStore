@@ -1,0 +1,65 @@
+﻿<form asp-controller="Productos"
+      asp-action="Index"
+      method="get"
+      class="row g-3 mb-4">
+
+    <div class="col-md-4">
+
+        <input type="text"
+               name="buscar"
+               value="@ViewBag.Buscar"
+               class="form-control"
+               placeholder="Buscar productos..." />
+
+    </div>
+
+    <div class="col-md-3">
+
+        <select name="categoriaId"
+                asp-items="ViewBag.Categorias"
+                class="form-select">
+
+            <option value="">
+                Todas las categorías
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="col-md-3">
+
+        <select name="marcaId"
+                asp-items="ViewBag.Marcas"
+                class="form-select">
+
+            <option value="">
+                Todas las marcas
+            </option>
+
+        </select>
+
+    </div>
+
+    <div class="col-md-2 d-grid">
+
+        <button type="submit"
+                class="btn btn-success">
+            Buscar
+        </button>
+
+    </div>
+
+    <div class="col-12">
+
+        <a asp-controller="Productos"
+           asp-action="Index"
+           class="btn btn-outline-light btn-sm">
+
+            Limpiar filtros
+
+        </a>
+
+    </div>
+
+</form>

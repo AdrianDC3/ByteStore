@@ -1,0 +1,97 @@
+﻿@model ByteStore.Models.Producto
+@using ByteStore.Helpers
+
+@{
+    var rutaImagen = ImagenProductoHelper.ObtenerRuta(Model.Nombre);
+}
+
+<div class="card bg-dark text-light h-100 border-secondary producto-card">
+
+    <!-- IMAGEN DEL PRODUCTO -->
+
+    <a asp-controller="Productos"
+       asp-action="Detalle"
+       asp-route-id="@Model.Id"
+       class="text-decoration-none">
+
+        <div class="producto-imagen-contenedor">
+
+            @if (rutaImagen != null)
+            {
+                <img src="@Url.Content(rutaImagen)"
+                     class="producto-imagen"
+                     alt="@Model.Nombre"
+                     loading="lazy" />
+            }
+            else
+            {
+                <div class="text-center text-secondary">
+
+                    <p class="mb-0">
+                        Imagen no disponible
+                    </p>
+
+                </div>
+            }
+
+        </div>
+
+    </a>
+
+    <!-- INFORMACION -->
+
+    <div class="card-body d-flex flex-column">
+
+        <h5 class="card-title producto-nombre">
+            @Model.Nombre
+        </h5>
+
+        <p class="text-secondary small mb-2">
+
+            @Model.Categoria?.Nombre
+            |
+            @Model.Marca?.Nombre
+
+        </p>
+
+        <p class="card-text text-secondary producto-descripcion">
+            @Model.Descripcion
+        </p>
+
+        <!-- PRECIO -->
+
+        <p class="text-success producto-precio mt-auto mb-2">
+            $ @Model.Precio.ToString("N2")
+        </p>
+
+        <!-- STOCK -->
+        @if (Model.Stock > 0)
+        {
+            <p class="text-light producto-stock mb-0">
+
+                <span class="text-success">●</span>
+                Stock disponible: @Model.Stock
+
+            </p>
+        }
+        else
+        {
+            <p class="text-danger producto-stock mb-0">
+                ● Sin stock
+            </p>
+        }
+
+        <!-- DETALLE -->
+
+        <a asp-controller="Productos"
+           asp-action="Detalle"
+           asp-route-id="@Model.Id"
+           class="btn btn-outline-success mt-3">
+
+            Ver detalle
+
+        </a>
+
+    </div>
+
+</div>

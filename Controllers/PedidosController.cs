@@ -1,10 +1,6 @@
-﻿using ByteStore.Data;
-using ByteStore.Models;
-using ByteStore.Services;
+﻿using ByteStore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -13,16 +9,18 @@ namespace ByteStore.Controllers
     [Authorize]
     public class PedidosController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly PedidoService _pedidoService;
         private readonly CarritoService _carritoService;
 
         public PedidosController(
-            ApplicationDbContext context,
+            PedidoService pedidoService,
             CarritoService carritoService)
         {
-            _context = context;
+            _pedidoService = pedidoService;
             _carritoService = carritoService;
         }
+
+        // CHECKOUT
 
         [HttpGet]
         public async Task<IActionResult> Checkout()
@@ -34,50 +32,19 @@ namespace ByteStore.Controllers
                 if (error != "El carrito está vacío.")
                     ViewBag.Error = error;
 
-                return View(new List<ItemCarrito>());
+                return View(new List<ByteStore.Models.ItemCarrito>());
             }
 
-            var ids = carrito.Select(i => i.ProductoId).ToList();
+            var resultado = await _pedidoService
+                .PrepararCheckoutAsync(carrito);
 
-            var productos = await _context.Productos
-                .AsNoTracking()
-                .Where(p => ids.Contains(p.Id) && p.Activo)
-                .ToListAsync();
+            if (resultado.Error != null)
+                ViewBag.Error = resultado.Error;
 
-            if (productos.Count != carrito.Count)
-            {
-                ViewBag.Error =
-                    "Uno de los productos ya no está disponible. Revisá tu carrito.";
-
-                return View(new List<ItemCarrito>());
-            }
-
-            var resumen = new List<ItemCarrito>();
-
-            foreach (var item in carrito)
-            {
-                var producto = productos.First(
-                    p => p.Id == item.ProductoId);
-
-                if (producto.Stock < item.Cantidad)
-                {
-                    ViewBag.Error =
-                        $"Stock insuficiente para {producto.Nombre}. Revisá tu carrito.";
-
-                    return View(new List<ItemCarrito>());
-                }
-
-                resumen.Add(new ItemCarrito
-                {
-                    ProductoId = producto.Id,
-                    Nombre = producto.Nombre,
-                    Precio = producto.Precio,
-                    Cantidad = item.Cantidad
-                });
-            }
-
-            return View(resumen);
+            return View(resultado.Resumen);
         }
+
+        // CONFIRMAR COMPRA
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -96,9 +63,7 @@ namespace ByteStore.Controllers
                 CodigoSeguridad);
 
             if (errorPago != null)
-            {
                 return BadRequest(new { error = errorPago });
-            }
 
             var usuarioId = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
@@ -121,8 +86,27 @@ namespace ByteStore.Controllers
                 });
             }
 
-            return await RegistrarPedido(usuarioId, carrito);
+            var resultado = await _pedidoService
+                .RegistrarAsync(usuarioId, carrito);
+
+            if (resultado.Error != null)
+            {
+                return StatusCode(
+                    resultado.CodigoEstado,
+                    new { error = resultado.Error });
+            }
+
+            _carritoService.Vaciar();
+
+            return Ok(new
+            {
+                exito = true,
+                mensaje = "Pago de prueba aprobado. Compra confirmada.",
+                pedidoId = resultado.PedidoId
+            });
         }
+
+        // HISTORIAL DE PEDIDOS
 
         [HttpGet]
         public async Task<IActionResult> MisPedidos()
@@ -133,18 +117,13 @@ namespace ByteStore.Controllers
             if (string.IsNullOrEmpty(usuarioId))
                 return Challenge();
 
-            var pedidos = await _context.Pedidos
-                .AsNoTracking()
-                .Include(p => p.Detalles)
-                    .ThenInclude(d => d.Producto)
-                .Where(p => p.UsuarioId == usuarioId)
-                .OrderByDescending(p => p.Fecha)
-                .ToListAsync();
+            var pedidos = await _pedidoService
+                .ObtenerPedidosAsync(usuarioId);
 
             return View(pedidos);
         }
 
-        // VALIDACION DEL PAGO FICTICIO
+        // VALIDAR DATOS DEL PAGO FICTICIO
 
         private static string? ValidarPago(
             string? tipoTarjeta,
@@ -202,90 +181,10 @@ namespace ByteStore.Controllers
                 return "El código de seguridad debe contener 3 dígitos.";
             }
 
-            // No se almacenan datos de tarjetas.
-            // El pago es únicamente una simulación.
+            // Los datos de la tarjeta no se almacenan.
+            // El pago es una simulación académica.
+
             return null;
-        }
-
-        // REGISTRO DEL PEDIDO Y ACTUALIZACION DEL STOCK
-
-        private async Task<IActionResult> RegistrarPedido(
-            string usuarioId,
-            List<ItemCarrito> carrito)
-        {
-            await using var transaccion = await _context.Database
-                .BeginTransactionAsync(IsolationLevel.Serializable);
-
-            try
-            {
-                var pedido = new Pedido
-                {
-                    UsuarioId = usuarioId,
-                    Fecha = DateTime.UtcNow,
-                    Estado = "Pendiente"
-                };
-
-                foreach (var item in carrito)
-                {
-                    var producto = await _context.Productos
-                        .FirstOrDefaultAsync(p =>
-                            p.Id == item.ProductoId && p.Activo);
-
-                    if (producto == null)
-                    {
-                        await transaccion.RollbackAsync();
-
-                        return BadRequest(new
-                        {
-                            error = "Uno de los productos ya no está disponible."
-                        });
-                    }
-
-                    if (producto.Stock < item.Cantidad)
-                    {
-                        await transaccion.RollbackAsync();
-
-                        return BadRequest(new
-                        {
-                            error = $"Stock insuficiente para {producto.Nombre}."
-                        });
-                    }
-
-                    producto.Stock -= item.Cantidad;
-
-                    pedido.Detalles.Add(new DetallePedido
-                    {
-                        ProductoId = producto.Id,
-                        Cantidad = item.Cantidad,
-                        PrecioUnitario = producto.Precio
-                    });
-
-                    pedido.Total += producto.Precio * item.Cantidad;
-                }
-
-                _context.Pedidos.Add(pedido);
-
-                await _context.SaveChangesAsync();
-                await transaccion.CommitAsync();
-
-                _carritoService.Vaciar();
-
-                return Ok(new
-                {
-                    exito = true,
-                    mensaje = "Pago de prueba aprobado. Compra confirmada.",
-                    pedidoId = pedido.Id
-                });
-            }
-            catch (Exception)
-            {
-                await transaccion.RollbackAsync();
-
-                return StatusCode(500, new
-                {
-                    error = "No se pudo procesar la compra. Intentá nuevamente."
-                });
-            }
         }
     }
 }

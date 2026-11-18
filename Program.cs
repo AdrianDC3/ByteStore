@@ -5,9 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =====================================================
-// CONFIGURACION DE LA BASE DE DATOS
-// =====================================================
+// BASE DE DATOS
 
 var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
@@ -29,9 +27,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// =====================================================
-// ASP.NET CORE IDENTITY
-// =====================================================
+// IDENTITY
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
@@ -40,15 +36,11 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// =====================================================
 // MVC
-// =====================================================
 
 builder.Services.AddControllersWithViews();
 
-// =====================================================
-// SESIONES Y CARRITO
-// =====================================================
+// SESIONES
 
 builder.Services.AddDistributedMemoryCache();
 
@@ -59,21 +51,19 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Permite acceder a HttpContext desde los servicios.
+// SERVICIOS
+
 builder.Services.AddHttpContextAccessor();
 
-// Registrar el servicio del carrito.
 builder.Services.AddScoped<CarritoService>();
+builder.Services.AddScoped<PedidoService>();
+builder.Services.AddScoped<ProductoService>();
 
-// =====================================================
-// CONSTRUCCION DE LA APLICACION
-// =====================================================
+// CONSTRUIR APLICACION
 
 var app = builder.Build();
 
-// =====================================================
-// CONFIGURACION DEL ENTORNO
-// =====================================================
+// MIDDLEWARE
 
 if (app.Environment.IsDevelopment())
 {
@@ -87,17 +77,13 @@ else
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
 app.UseSession();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
-// =====================================================
-// RUTAS MVC
-// =====================================================
+// RUTAS
 
 app.MapControllerRoute(
     name: "default",
@@ -107,9 +93,7 @@ app.MapControllerRoute(
 app.MapRazorPages()
    .WithStaticAssets();
 
-// =====================================================
-// CREACION DEL ROL ADMINISTRADOR
-// =====================================================
+// ROL ADMINISTRADOR
 
 using (var scope = app.Services.CreateScope())
 {
@@ -130,9 +114,5 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
-
-// =====================================================
-// INICIAR BYTESTORE
-// =====================================================
 
 app.Run();
