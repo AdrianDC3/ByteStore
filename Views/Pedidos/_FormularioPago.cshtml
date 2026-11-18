@@ -1,0 +1,172 @@
+﻿<div class="card bg-dark text-light border-secondary">
+
+    <div class="card-header border-secondary p-3">
+
+        <h5 class="text-success mb-0">
+            💳 Datos de la tarjeta
+        </h5>
+
+    </div>
+
+    <div class="card-body p-4">
+
+        <form id="formPagoSimulado"
+              asp-controller="Pedidos"
+              asp-action="Confirmar"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <!-- MENSAJES DE ERROR -->
+
+            <div id="mensajePago"
+                 class="alert alert-danger d-none"
+                 role="alert"
+                 aria-live="polite">
+            </div>
+
+            <!-- TIPO DE TARJETA -->
+
+            <div class="mb-3">
+
+                <label for="tipoTarjeta" class="form-label">
+                    Tipo de tarjeta
+                </label>
+
+                <select id="tipoTarjeta"
+                        name="TipoTarjeta"
+                        class="form-select"
+                        required>
+
+                    <option value="">
+                        Seleccioná una opción
+                    </option>
+
+                    <option value="Credito">
+                        Crédito
+                    </option>
+
+                    <option value="Debito">
+                        Débito
+                    </option>
+
+                </select>
+
+            </div>
+
+            <!-- TITULAR -->
+
+            <div class="mb-3">
+
+                <label for="titularTarjeta" class="form-label">
+                    Nombre del titular
+                </label>
+
+                <input type="text"
+                       id="titularTarjeta"
+                       name="Titular"
+                       class="form-control"
+                       placeholder="JUAN PEREZ"
+                       minlength="3"
+                       maxlength="100"
+                       autocomplete="off"
+                       required />
+
+            </div>
+
+            <!-- NUMERO DE TARJETA -->
+
+            <div class="mb-3">
+
+                <label for="numeroTarjeta" class="form-label">
+                    Número de tarjeta
+                </label>
+
+                <input type="text"
+                       id="numeroTarjeta"
+                       name="NumeroTarjeta"
+                       class="form-control"
+                       placeholder="1234 5678 9012 3456"
+                       inputmode="numeric"
+                       maxlength="19"
+                       autocomplete="off"
+                       pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}"
+                       title="Ingresá 16 números en grupos de cuatro."
+                       required />
+
+                <div class="form-text text-secondary">
+                    Utilizá únicamente números ficticios.
+                </div>
+
+            </div>
+
+            <div class="row g-3">
+
+                <!-- VENCIMIENTO -->
+
+                <div class="col-md-6">
+
+                    <label for="vencimientoTarjeta"
+                           class="form-label">
+                        Vencimiento
+                    </label>
+
+                    <input type="text"
+                           id="vencimientoTarjeta"
+                           name="Vencimiento"
+                           class="form-control"
+                           placeholder="MM/AA"
+                           maxlength="5"
+                           autocomplete="off"
+                           pattern="(0[1-9]|1[0-2])/[0-9]{2}"
+                           title="Ingresá una fecha en formato MM/AA."
+                           required />
+
+                </div>
+
+                <!-- CODIGO DE SEGURIDAD -->
+
+                <div class="col-md-6">
+
+                    <label for="codigoSeguridad"
+                           class="form-label">
+                        Código de seguridad
+                    </label>
+
+                    <input type="text"
+                           id="codigoSeguridad"
+                           name="CodigoSeguridad"
+                           class="form-control"
+                           placeholder="123"
+                           inputmode="numeric"
+                           maxlength="3"
+                           autocomplete="off"
+                           pattern="[0-9]{3}"
+                           title="Ingresá tres dígitos ficticios."
+                           required />
+
+                </div>
+
+            </div>
+
+            <hr class="border-secondary my-4" />
+
+            <p class="text-secondary small">
+                🔒 Pago de prueba. No ingreses datos de tarjetas reales.
+            </p>
+
+            <!-- CONFIRMAR COMPRA -->
+
+            <button type="submit"
+                    id="botonConfirmarPago"
+                    class="btn btn-success w-100 fw-semibold">
+
+                Confirmar pago
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>

@@ -1,0 +1,39 @@
+﻿@model List<ByteStore.Models.Pedido>
+
+<div class="table-responsive">
+
+    <table class="table table-dark table-striped table-hover align-middle">
+
+        <thead>
+
+            <tr>
+                <th>Pedido</th>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            @foreach (var pedido in Model)
+            {
+                <!-- INFORMACION GENERAL -->
+
+                <partial name="_FilaVenta"
+                         model="pedido" />
+
+                <!-- PRODUCTOS DEL PEDIDO -->
+
+                <partial name="_DetalleVenta"
+                         model="pedido" />
+            }
+
+        </tbody>
+
+    </table>
+
+</div>

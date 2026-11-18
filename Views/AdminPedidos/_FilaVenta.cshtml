@@ -1,0 +1,147 @@
+﻿@model ByteStore.Models.Pedido
+
+@{
+    var usuarios = ViewBag.Usuarios as Dictionary<string, string>
+        ?? new Dictionary<string, string>();
+
+    var correo = usuarios.TryGetValue(Model.UsuarioId, out var email)
+        ? email
+        : "Usuario no encontrado";
+}
+
+<tr>
+
+    <!-- NUMERO -->
+
+    <td class="fw-semibold">
+        #@Model.Id
+    </td>
+
+    <!-- FECHA -->
+
+    <td>
+        @Model.Fecha.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+    </td>
+
+    <!-- CLIENTE -->
+
+    <td>
+        @correo
+    </td>
+
+    <!-- TOTAL -->
+
+    <td class="text-success fw-semibold">
+        $ @Model.Total.ToString("N2")
+    </td>
+
+    <!-- ESTADO -->
+
+    <td>
+
+        @if (Model.Estado == "Pendiente")
+        {
+            <span class="badge bg-warning text-dark">
+                Pendiente
+            </span>
+        }
+        else if (Model.Estado == "En preparación")
+        {
+            <span class="badge bg-info text-dark">
+                En preparación
+            </span>
+        }
+        else if (Model.Estado == "Enviado")
+        {
+            <span class="badge bg-primary">
+                Enviado
+            </span>
+        }
+        else if (Model.Estado == "Entregado")
+        {
+            <span class="badge bg-success">
+                Entregado
+            </span>
+        }
+        else
+        {
+            <span class="badge bg-secondary">
+                @Model.Estado
+            </span>
+        }
+
+    </td>
+
+    <!-- ACCIONES -->
+
+    <td>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+
+            <!-- VER DETALLE -->
+
+            <button type="button"
+                    class="btn btn-sm btn-outline-light"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#detalle-@Model.Id"
+                    aria-expanded="false"
+                    aria-controls="detalle-@Model.Id">
+
+                Ver detalle
+
+            </button>
+
+            <!-- CAMBIAR ESTADO -->
+
+            <form asp-controller="AdminPedidos"
+                  asp-action="CambiarEstado"
+                  method="post"
+                  class="d-flex align-items-center gap-2 m-0">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.Id" />
+
+                <select name="nuevoEstado"
+                        class="form-select form-select-sm admin-pedido-estado"
+                        aria-label="Nuevo estado del pedido #@Model.Id">
+
+                    <option value="Pendiente"
+                            selected="@(Model.Estado == "Pendiente")">
+                        Pendiente
+                    </option>
+
+                    <option value="En preparación"
+                            selected="@(Model.Estado == "En preparación")">
+                        En preparación
+                    </option>
+
+                    <option value="Enviado"
+                            selected="@(Model.Estado == "Enviado")">
+                        Enviado
+                    </option>
+
+                    <option value="Entregado"
+                            selected="@(Model.Estado == "Entregado")">
+                        Entregado
+                    </option>
+
+                </select>
+
+                <button type="submit"
+                        class="btn btn-sm btn-outline-success"
+                        title="Guardar estado">
+
+                    Guardar
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </td>
+
+</tr>

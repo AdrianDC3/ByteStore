@@ -1,0 +1,69 @@
+﻿@model ByteStore.Models.Pedido
+
+<tr class="border-0">
+
+    <td colspan="6" class="p-0 border-0">
+
+        <div class="collapse" id="detalle-@Model.Id">
+
+            <div class="card bg-dark text-light border-secondary m-3">
+
+                <div class="card-body">
+
+                    <h5 class="text-success mb-3">
+                        Productos del pedido #@Model.Id
+                    </h5>
+
+                    <div class="table-responsive">
+
+                        <table class="table table-sm table-dark align-middle mb-0">
+
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio unitario</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+
+                                @foreach (var detalle in Model.Detalles)
+                                {
+                                    <tr>
+
+                                        <td>
+                                            @(detalle.Producto?.Nombre ?? "Producto no disponible")
+                                        </td>
+
+                                        <td>
+                                            @detalle.Cantidad
+                                        </td>
+
+                                        <td>
+                                            $ @detalle.PrecioUnitario.ToString("N2")
+                                        </td>
+
+                                        <td>
+                                            $ @((detalle.PrecioUnitario * detalle.Cantidad).ToString("N2"))
+                                        </td>
+
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </td>
+
+</tr>
