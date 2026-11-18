@@ -1,4 +1,3 @@
-
 /* ===== CONFIGURACION GENERAL ===== */
 
 html {
@@ -12,6 +11,7 @@ html {
     }
 }
 
+
 /* ===== ESTRUCTURA GLOBAL CON FLEXBOX ===== */
 
 body {
@@ -23,20 +23,17 @@ body {
     color: #f5f5f5;
 }
 
-    /* La navbar mantiene su altura natural */
-
     body > header {
         flex-shrink: 0;
     }
 
-/* El contenido principal ocupa el espacio disponible.
-   Si la pagina tiene muchos productos o pedidos,
-   puede crecer sin superponerse al footer. */
+/* El contenido principal ocupa el espacio disponible. */
 
 .layout-contenido {
     flex: 1 0 auto;
     min-width: 0;
 }
+
 
 /* ===== ESTILOS DE FORMULARIOS ===== */
 
@@ -59,6 +56,7 @@ body {
     text-align: start;
 }
 
+
 /* ===== BARRA DE NAVEGACION BYTESTORE ===== */
 
 .navbar {
@@ -77,6 +75,7 @@ body {
         color: #00c853 !important;
     }
 
+
 /* ===== PIE DE PAGINA BYTESTORE ===== */
 
 .footer {
@@ -84,20 +83,14 @@ body {
     background-color: #1e1e1e;
     color: #aaaaaa !important;
     border-top: 1px solid #333333 !important;
-    /* Evita que el footer flote sobre el contenido */
     position: static !important;
     bottom: auto !important;
-    /* Mantiene el footer al final del Flexbox */
     flex-shrink: 0;
-    /* Conserva el tamaño original de la letra */
     font-size: inherit;
     line-height: normal;
     white-space: normal;
     padding: 0;
 }
-
-    /* Footer compacto:
-   solamente 5px arriba y 5px abajo */
 
     .footer .container {
         padding-top: 5px !important;
@@ -107,6 +100,7 @@ body {
     .footer a {
         color: #00c853;
     }
+
 
 /* ===== CARRITO LATERAL BYTESTORE ===== */
 
@@ -120,4 +114,11 @@ body {
     opacity: 0.65;
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
+}
+
+
+/* ===== CANTIDAD DE PRODUCTOS DEL CARRITO ===== */
+
+.carrito-cantidad {
+    width: 75px;
 }

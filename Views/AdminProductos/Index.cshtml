@@ -1,31 +1,22 @@
-﻿@model List<ByteStore.Models.Producto>
+﻿@model List<ByteStore.Models.Pedido>
 
 @{
-    ViewData["Title"] = "Administrar productos";
+    ViewData["Title"] = "Pedidos y ventas";
 }
 
-<div class="container mt-4">
+<div class="container mt-4 mb-5">
 
-    <!-- ENCABEZADO -->
+    <!-- TITULO -->
 
-    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
         <h2 class="text-success mb-0">
-            📦 Administración de productos
+            📋 Pedidos y ventas
         </h2>
-
-        <a asp-controller="AdminProductos"
-           asp-action="Crear"
-           class="btn btn-success">
-
-            + Nuevo producto
-
-        </a>
 
     </div>
 
     <!-- MENSAJES -->
-
     @if (TempData["Mensaje"] != null)
     {
         <div class="alert alert-success">
@@ -40,19 +31,33 @@
         </div>
     }
 
-    <!-- FILTROS -->
+    <!-- RESUMEN GENERAL -->
 
-    <partial name="_FiltrosAdmin" />
+    <partial name="_ResumenVentas" model="Model" />
 
-    <!-- RESULTADOS -->
+    <!-- LISTADO DE PEDIDOS -->
+    @if (!Model.Any())
+    {
+        <div class="card bg-dark border-secondary text-center">
 
-    <p class="text-secondary">
-        Productos encontrados: @Model.Count
-    </p>
+            <div class="card-body py-5">
 
-    <!-- TABLA -->
+                <h4 class="text-light">
+                    Todavía no hay pedidos registrados
+                </h4>
 
-    <partial name="_TablaProductos" model="Model" />
+                <p class="text-secondary mb-0">
+                    Las compras realizadas por los clientes aparecerán acá.
+                </p>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <partial name="_TablaVentas" model="Model" />
+    }
 
     <!-- VOLVER -->
 
@@ -66,9 +71,10 @@
 
 </div>
 
-@section Scripts {
+@section Styles {
 
-    <script src="~/js/admin-productos.js"
-            asp-append-version="true"></script>
+    <link rel="stylesheet"
+          href="~/css/admin-pedidos.css"
+          asp-append-version="true" />
 
 }

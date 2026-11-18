@@ -1,0 +1,12 @@
+﻿/* ==========================================
+   BYTESTORE - LAYOUT GENERAL
+========================================== */
+
+/* LOGO DE LA NAVBAR */
+
+.navbar-logo {
+    height: 42px;
+    width: auto;
+    max-width: 190px;
+    object-fit: contain;
+}

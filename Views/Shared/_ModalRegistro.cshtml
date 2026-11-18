@@ -1,0 +1,169 @@
+﻿<div class="modal fade"
+     id="modalRegistro"
+     tabindex="-1"
+     aria-labelledby="tituloModalRegistro"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content bg-dark text-light border-secondary">
+
+            <!-- ENCABEZADO -->
+
+            <div class="modal-header border-secondary">
+
+                <div>
+
+                    <h5 class="modal-title text-success fw-bold"
+                        id="tituloModalRegistro">
+                        ⚡ ByteStore
+                    </h5>
+
+                    <h6 class="text-light mt-2 mb-0">
+                        Crear cuenta
+                    </h6>
+
+                </div>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Cerrar">
+                </button>
+
+            </div>
+
+            <!-- CONTENIDO -->
+
+            <div class="modal-body p-4">
+
+                <div id="mensajeRegistro"
+                     class="alert d-none"
+                     role="alert"
+                     aria-live="polite">
+                </div>
+
+                <!-- REGISTRO -->
+
+                <form id="formRegistroModal"
+                      asp-area=""
+                      asp-controller="RegistroModal"
+                      asp-action="Registrar"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+
+                        <label for="registroEmail" class="form-label">
+                            Correo electrónico
+                        </label>
+
+                        <input type="email"
+                               id="registroEmail"
+                               name="Email"
+                               class="form-control"
+                               placeholder="correo@ejemplo.com"
+                               autocomplete="email"
+                               required />
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label for="registroPassword" class="form-label">
+                            Contraseña
+                        </label>
+
+                        <input type="password"
+                               id="registroPassword"
+                               name="Password"
+                               class="form-control"
+                               autocomplete="new-password"
+                               required />
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label for="registroConfirmPassword"
+                               class="form-label">
+                            Confirmar contraseña
+                        </label>
+
+                        <input type="password"
+                               id="registroConfirmPassword"
+                               name="ConfirmPassword"
+                               class="form-control"
+                               autocomplete="new-password"
+                               required />
+
+                    </div>
+
+                    <button type="submit"
+                            class="btn btn-success w-100 fw-semibold">
+                        Crear cuenta
+                    </button>
+
+                </form>
+
+                <!-- CONFIRMACION SIMULADA -->
+
+                <form id="formConfirmarCorreo"
+                      asp-area=""
+                      asp-controller="RegistroModal"
+                      asp-action="ConfirmarCorreo"
+                      method="post"
+                      class="d-none">
+
+                    @Html.AntiForgeryToken()
+
+                    <p class="text-secondary small">
+                        Este es un registro de demostración.
+                        No se enviará ningún correo electrónico.
+                    </p>
+
+                    <button type="submit"
+                            class="btn btn-success w-100 fw-semibold">
+                        Confirmar correo (simulación)
+                    </button>
+
+                </form>
+
+                <!-- REGISTRO COMPLETADO -->
+
+                <div id="registroFinalizado" class="d-none">
+
+                    <button type="button"
+                            class="btn btn-success w-100 fw-semibold"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalLogin">
+                        Ir a iniciar sesión
+                    </button>
+
+                </div>
+
+            </div>
+
+            <!-- PIE DEL MODAL -->
+
+            <div class="modal-footer border-secondary justify-content-center">
+
+                <span class="text-secondary">
+                    ¿Ya tenés cuenta?
+                </span>
+
+                <button type="button"
+                        class="btn btn-link text-success text-decoration-none fw-semibold p-0"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalLogin">
+                    Iniciar sesión
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

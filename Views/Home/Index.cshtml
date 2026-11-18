@@ -2,10 +2,6 @@
     ViewData["Title"] = "Inicio";
 }
 
-<link rel="stylesheet"
-      href="~/css/home.css"
-      asp-append-version="true" />
-
 <div class="container pb-5">
 
     <partial name="_Hero" />
@@ -15,3 +11,11 @@
     <partial name="_PanelFinal" />
 
 </div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/home.css"
+          asp-append-version="true" />
+
+}

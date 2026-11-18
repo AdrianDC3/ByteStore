@@ -1,0 +1,100 @@
+﻿<header>
+
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark border-bottom border-success mb-3">
+
+        <div class="container-fluid">
+
+            <!-- LOGO -->
+
+            <a class="navbar-brand d-flex align-items-center"
+               asp-area=""
+               asp-controller="Home"
+               asp-action="Index"
+               aria-label="ByteStore - Inicio">
+
+                <img src="~/images/logo-navbar.png"
+                     asp-append-version="true"
+                     class="navbar-logo"
+                     alt="ByteStore" />
+
+            </a>
+
+            <!-- MENU RESPONSIVE -->
+
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target=".navbar-collapse"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
+
+                <span class="navbar-toggler-icon"></span>
+
+            </button>
+
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
+                <ul class="navbar-nav flex-grow-1">
+
+                    <!-- CARRITO -->
+
+                    <li class="nav-item">
+
+                        <button class="nav-link text-light d-flex align-items-center gap-1"
+                                type="button"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#carritoLateral"
+                                aria-controls="carritoLateral"
+                                aria-label="Abrir carrito de compras">
+
+                            <span aria-hidden="true">🛒</span>
+
+                            <span id="contadorCarrito"
+                                  class="badge bg-success rounded-pill d-none"
+                                  aria-label="Unidades en el carrito">
+                                0
+                            </span>
+
+                        </button>
+
+                    </li>
+
+                    <!-- INICIO -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link text-light"
+                           asp-area=""
+                           asp-controller="Home"
+                           asp-action="Index">
+                            Home
+                        </a>
+
+                    </li>
+
+                    <!-- PRODUCTOS -->
+
+                    <li class="nav-item">
+
+                        <a class="nav-link text-light"
+                           asp-area=""
+                           asp-controller="Productos"
+                           asp-action="Index">
+                            Productos
+                        </a>
+
+                    </li>
+
+                </ul>
+
+                <!-- CUENTA -->
+
+                <partial name="_LoginPartial" />
+
+            </div>
+
+        </div>
+
+    </nav>
+
+</header>

@@ -7,10 +7,6 @@
     var rutaImagen = ImagenProductoHelper.ObtenerRuta(Model.Nombre);
 }
 
-<link rel="stylesheet"
-      href="~/css/producto-detalle.css"
-      asp-append-version="true" />
-
 <div class="container py-4">
 
     <!-- VOLVER AL CATALOGO -->
@@ -44,9 +40,11 @@
                         else
                         {
                             <div class="text-center text-secondary">
+
                                 <p class="mb-0">
                                     Imagen no disponible
                                 </p>
+
                             </div>
                         }
 
@@ -159,3 +157,11 @@
     </div>
 
 </div>
+
+@section Styles {
+
+    <link rel="stylesheet"
+          href="~/css/producto-detalle.css"
+          asp-append-version="true" />
+
+}
