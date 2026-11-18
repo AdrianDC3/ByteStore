@@ -1,0 +1,77 @@
+﻿<div class="card bg-dark text-light border-secondary mb-4">
+
+    <div class="card-body">
+
+        <form id="formFiltros"
+              asp-controller="AdminProductos"
+              asp-action="Index"
+              method="get">
+
+            <div class="row g-3">
+
+                <!-- BUSCAR PRODUCTO -->
+
+                <div class="col-md-4">
+
+                    <label for="buscar" class="form-label">
+                        Buscar producto
+                    </label>
+
+                    <input type="text"
+                           id="buscar"
+                           name="buscar"
+                           value="@ViewBag.Buscar"
+                           class="form-control"
+                           placeholder="Nombre del producto..." />
+
+                </div>
+
+                <!-- CATEGORIA -->
+
+                <div class="col-md-4">
+
+                    <label for="categoriaId" class="form-label">
+                        Categoría
+                    </label>
+
+                    <select id="categoriaId"
+                            name="categoriaId"
+                            asp-items="ViewBag.Categorias"
+                            class="form-select">
+
+                        <option value="">
+                            Todas las categorías
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <!-- MARCA -->
+
+                <div class="col-md-4">
+
+                    <label for="marcaId" class="form-label">
+                        Marca
+                    </label>
+
+                    <select id="marcaId"
+                            name="marcaId"
+                            asp-items="ViewBag.Marcas"
+                            class="form-select">
+
+                        <option value="">
+                            Todas las marcas
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>

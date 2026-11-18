@@ -6,7 +6,10 @@
 
 <div class="container mt-4">
 
+    <!-- ENCABEZADO -->
+
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+
         <h2 class="text-success mb-0">
             📦 Administración de productos
         </h2>
@@ -14,9 +17,14 @@
         <a asp-controller="AdminProductos"
            asp-action="Crear"
            class="btn btn-success">
+
             + Nuevo producto
+
         </a>
+
     </div>
+
+    <!-- MENSAJES -->
 
     @if (TempData["Mensaje"] != null)
     {
@@ -32,241 +40,35 @@
         </div>
     }
 
-    <div class="card bg-dark text-light border-secondary mb-4">
-        <div class="card-body">
+    <!-- FILTROS -->
 
-            <form id="formFiltros"
-                  asp-controller="AdminProductos"
-                  asp-action="Index"
-                  method="get">
+    <partial name="_FiltrosAdmin" />
 
-                <div class="row g-3">
-
-                    <div class="col-md-4">
-                        <label for="buscar" class="form-label">
-                            Buscar producto
-                        </label>
-
-                        <input type="text"
-                               id="buscar"
-                               name="buscar"
-                               value="@ViewBag.Buscar"
-                               class="form-control"
-                               placeholder="Nombre del producto..." />
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="categoriaId" class="form-label">
-                            Categoría
-                        </label>
-
-                        <select id="categoriaId"
-                                name="categoriaId"
-                                asp-items="ViewBag.Categorias"
-                                class="form-select">
-                            <option value="">Todas las categorías</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label for="marcaId" class="form-label">
-                            Marca
-                        </label>
-
-                        <select id="marcaId"
-                                name="marcaId"
-                                asp-items="ViewBag.Marcas"
-                                class="form-select">
-                            <option value="">Todas las marcas</option>
-                        </select>
-                    </div>
-
-                </div>
-
-            </form>
-
-        </div>
-    </div>
+    <!-- RESULTADOS -->
 
     <p class="text-secondary">
         Productos encontrados: @Model.Count
     </p>
 
-    <div class="table-responsive">
+    <!-- TABLA -->
 
-        <table class="table table-dark table-striped table-hover align-middle">
+    <partial name="_TablaProductos" model="Model" />
 
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Producto</th>
-                    <th>Categoría</th>
-                    <th>Marca</th>
-                    <th>Precio</th>
-                    <th>Stock</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                @foreach (var producto in Model)
-                {
-                    <tr>
-                        <td>@producto.Id</td>
-
-                        <td>
-                            <a asp-controller="AdminProductos"
-                               asp-action="Editar"
-                               asp-route-id="@producto.Id"
-                               class="text-success text-decoration-none fw-semibold">
-                                @producto.Nombre
-                            </a>
-                        </td>
-
-                        <td>@producto.Categoria.Nombre</td>
-
-                        <td>@producto.Marca.Nombre</td>
-
-                        <td>
-                            $ @producto.Precio.ToString("N2")
-                        </td>
-
-                        <td>@producto.Stock</td>
-
-                        <td>
-                            @if (producto.Activo)
-                            {
-                                <span class="badge bg-success">
-                                    Activo
-                                </span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-danger">
-                                    Inactivo
-                                </span>
-                            }
-                        </td>
-
-                        <td>
-                            <div class="d-flex align-items-center gap-2 flex-nowrap">
-
-                                <form asp-controller="AdminProductos"
-                                      asp-action="CambiarEstado"
-                                      method="post"
-                                      class="m-0">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <input type="hidden"
-                                           name="id"
-                                           value="@producto.Id" />
-
-                                    @if (producto.Activo)
-                                    {
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('¿Querés desactivar este producto?');">
-                                            Desactivar
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button type="submit"
-                                                class="btn btn-sm btn-outline-success"
-                                                onclick="return confirm('¿Querés reactivar este producto?');">
-                                            Reactivar
-                                        </button>
-                                    }
-
-                                </form>
-
-                                <form asp-controller="AdminProductos"
-                                      asp-action="Eliminar"
-                                      method="post"
-                                      class="m-0">
-
-                                    @Html.AntiForgeryToken()
-
-                                    <input type="hidden"
-                                           name="id"
-                                           value="@producto.Id" />
-
-                                    <button type="submit"
-                                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center"
-                                            title="Eliminar definitivamente"
-                                            aria-label="Eliminar definitivamente @producto.Nombre"
-                                            onclick="return confirm('¿Estás seguro de que querés eliminar definitivamente este producto? Esta acción no se puede deshacer.');">
-
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                             width="16"
-                                             height="16"
-                                             fill="currentColor"
-                                             viewBox="0 0 16 16"
-                                             aria-hidden="true">
-                                            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5" />
-                                            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2H6V1.5A1.5 1.5 0 0 1 7.5 0h1A1.5 1.5 0 0 1 10 1.5V2h3.5a1 1 0 0 1 1 1M4.118 4 4 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l-.118-9zM7 1.5V2h2v-.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5" />
-                                        </svg>
-
-                                    </button>
-
-                                </form>
-
-                            </div>
-                        </td>
-                    </tr>
-                }
-
-                @if (!Model.Any())
-                {
-                    <tr>
-                        <td colspan="8"
-                            class="text-center text-secondary py-4">
-                            No se encontraron productos con los filtros seleccionados.
-                        </td>
-                    </tr>
-                }
-
-            </tbody>
-
-        </table>
-
-    </div>
+    <!-- VOLVER -->
 
     <a asp-controller="Productos"
        asp-action="Index"
        class="btn btn-outline-secondary mt-3">
+
         Volver al catálogo
+
     </a>
 
 </div>
 
 @section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
 
-            const formulario = document.getElementById("formFiltros");
-            const categoria = document.getElementById("categoriaId");
-            const marca = document.getElementById("marcaId");
+    <script src="~/js/admin-productos.js"
+            asp-append-version="true"></script>
 
-            if (!(formulario instanceof HTMLFormElement)) {
-                return;
-            }
-
-            if (categoria !== null) {
-                categoria.addEventListener("change", function () {
-                    formulario.requestSubmit();
-                });
-            }
-
-            if (marca !== null) {
-                marca.addEventListener("change", function () {
-                    formulario.requestSubmit();
-                });
-            }
-
-        });
-    </script>
 }
