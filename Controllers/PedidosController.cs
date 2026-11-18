@@ -1,12 +1,11 @@
-﻿
-using ByteStore.Data;
+﻿using ByteStore.Data;
 using ByteStore.Models;
+using ByteStore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
 using System.Security.Claims;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace ByteStore.Controllers
@@ -15,51 +14,30 @@ namespace ByteStore.Controllers
     public class PedidosController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private const string ClaveCarrito = "Carrito";
+        private readonly CarritoService _carritoService;
 
-        public PedidosController(ApplicationDbContext context)
+        public PedidosController(
+            ApplicationDbContext context,
+            CarritoService carritoService)
         {
             _context = context;
+            _carritoService = carritoService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Checkout()
         {
-            var datos = HttpContext.Session.GetString(ClaveCarrito);
-
-            if (string.IsNullOrWhiteSpace(datos))
+            if (!_carritoService.TryObtener(
+                out var carrito,
+                out var error))
             {
+                if (error != "El carrito está vacío.")
+                    ViewBag.Error = error;
+
                 return View(new List<ItemCarrito>());
             }
 
-            List<ItemCarrito>? carrito;
-
-            try
-            {
-                carrito = JsonSerializer.Deserialize<List<ItemCarrito>>(datos);
-            }
-            catch (JsonException)
-            {
-                ViewBag.Error = "No se pudo recuperar el carrito.";
-                return View(new List<ItemCarrito>());
-            }
-
-            if (carrito == null || carrito.Count == 0)
-            {
-                return View(new List<ItemCarrito>());
-            }
-
-            if (carrito.Any(i => i.Cantidad <= 0) ||
-                carrito.Select(i => i.ProductoId).Distinct().Count()
-                    != carrito.Count)
-            {
-                ViewBag.Error = "El carrito contiene datos inválidos.";
-                return View(new List<ItemCarrito>());
-            }
-
-            var ids = carrito
-                .Select(i => i.ProductoId)
-                .ToList();
+            var ids = carrito.Select(i => i.ProductoId).ToList();
 
             var productos = await _context.Productos
                 .AsNoTracking()
@@ -110,77 +88,17 @@ namespace ByteStore.Controllers
             string? Vencimiento,
             string? CodigoSeguridad)
         {
-            // VALIDAR LOS DATOS DEL PAGO FICTICIO
+            var errorPago = ValidarPago(
+                TipoTarjeta,
+                Titular,
+                NumeroTarjeta,
+                Vencimiento,
+                CodigoSeguridad);
 
-            if (TipoTarjeta != "Credito" &&
-                TipoTarjeta != "Debito")
+            if (errorPago != null)
             {
-                return BadRequest(new
-                {
-                    error = "Seleccioná un tipo de tarjeta válido."
-                });
+                return BadRequest(new { error = errorPago });
             }
-
-            if (string.IsNullOrWhiteSpace(Titular) ||
-                Titular.Trim().Length < 3 ||
-                Titular.Trim().Length > 100)
-            {
-                return BadRequest(new
-                {
-                    error = "Ingresá un nombre de titular válido."
-                });
-            }
-
-            string numero = Regex.Replace(
-                NumeroTarjeta ?? "",
-                @"\s+",
-                "");
-
-            if (!Regex.IsMatch(numero, @"^[0-9]{16}$"))
-            {
-                return BadRequest(new
-                {
-                    error = "El número de tarjeta debe contener 16 dígitos."
-                });
-            }
-
-            if (string.IsNullOrWhiteSpace(Vencimiento) ||
-                !Regex.IsMatch(
-                    Vencimiento,
-                    @"^(0[1-9]|1[0-2])/[0-9]{2}$"))
-            {
-                return BadRequest(new
-                {
-                    error = "Ingresá un vencimiento válido en formato MM/AA."
-                });
-            }
-
-            int mes = int.Parse(Vencimiento.Substring(0, 2));
-            int anio = 2000 + int.Parse(Vencimiento.Substring(3, 2));
-
-            var fechaActual = DateTime.UtcNow;
-
-            if (anio < fechaActual.Year ||
-                (anio == fechaActual.Year && mes < fechaActual.Month))
-            {
-                return BadRequest(new
-                {
-                    error = "La fecha de vencimiento ingresada ya pasó."
-                });
-            }
-
-            if (!Regex.IsMatch(
-                CodigoSeguridad ?? "",
-                @"^[0-9]{3}$"))
-            {
-                return BadRequest(new
-                {
-                    error = "El código de seguridad debe contener 3 dígitos."
-                });
-            }
-
-            // NO SE GUARDAN LOS DATOS DE LA TARJETA.
-            // SOLO SE UTILIZAN PARA VALIDAR ESTA SIMULACION.
 
             var usuarioId = User.FindFirstValue(
                 ClaimTypes.NameIdentifier);
@@ -193,53 +111,108 @@ namespace ByteStore.Controllers
                 });
             }
 
-            // RECUPERAR CARRITO
-
-            var datos = HttpContext.Session.GetString(ClaveCarrito);
-
-            if (string.IsNullOrEmpty(datos))
+            if (!_carritoService.TryObtener(
+                out var carrito,
+                out var errorCarrito))
             {
                 return BadRequest(new
                 {
-                    error = "El carrito está vacío."
+                    error = errorCarrito
                 });
             }
 
-            List<ItemCarrito>? carrito;
+            return await RegistrarPedido(usuarioId, carrito);
+        }
 
-            try
+        [HttpGet]
+        public async Task<IActionResult> MisPedidos()
+        {
+            var usuarioId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(usuarioId))
+                return Challenge();
+
+            var pedidos = await _context.Pedidos
+                .AsNoTracking()
+                .Include(p => p.Detalles)
+                    .ThenInclude(d => d.Producto)
+                .Where(p => p.UsuarioId == usuarioId)
+                .OrderByDescending(p => p.Fecha)
+                .ToListAsync();
+
+            return View(pedidos);
+        }
+
+        // VALIDACION DEL PAGO FICTICIO
+
+        private static string? ValidarPago(
+            string? tipoTarjeta,
+            string? titular,
+            string? numeroTarjeta,
+            string? vencimiento,
+            string? codigoSeguridad)
+        {
+            if (tipoTarjeta != "Credito" &&
+                tipoTarjeta != "Debito")
             {
-                carrito = JsonSerializer.Deserialize<List<ItemCarrito>>(datos);
+                return "Seleccioná un tipo de tarjeta válido.";
             }
-            catch (JsonException)
+
+            if (string.IsNullOrWhiteSpace(titular) ||
+                titular.Trim().Length < 3 ||
+                titular.Trim().Length > 100)
             {
-                return BadRequest(new
-                {
-                    error = "El carrito no es válido."
-                });
+                return "Ingresá un nombre de titular válido.";
             }
 
-            if (carrito == null || carrito.Count == 0)
+            string numero = Regex.Replace(
+                numeroTarjeta ?? "",
+                @"\s+",
+                "");
+
+            if (!Regex.IsMatch(numero, @"^[0-9]{16}$"))
             {
-                return BadRequest(new
-                {
-                    error = "El carrito está vacío."
-                });
+                return "El número de tarjeta debe contener 16 dígitos.";
             }
 
-            if (carrito.Any(i => i.Cantidad <= 0) ||
-                carrito.Select(i => i.ProductoId).Distinct().Count()
-                    != carrito.Count)
+            if (string.IsNullOrWhiteSpace(vencimiento) ||
+                !Regex.IsMatch(
+                    vencimiento,
+                    @"^(0[1-9]|1[0-2])/[0-9]{2}$"))
             {
-                return BadRequest(new
-                {
-                    error = "El carrito contiene datos inválidos."
-                });
+                return "Ingresá un vencimiento válido en formato MM/AA.";
             }
 
-            // REGISTRAR EL PEDIDO Y DESCONTAR STOCK
-            // DENTRO DE UNA TRANSACCION
+            int mes = int.Parse(vencimiento.Substring(0, 2));
+            int anio = 2000 + int.Parse(vencimiento.Substring(3, 2));
 
+            var fechaActual = DateTime.UtcNow;
+
+            if (anio < fechaActual.Year ||
+                (anio == fechaActual.Year && mes < fechaActual.Month))
+            {
+                return "La fecha de vencimiento ingresada ya pasó.";
+            }
+
+            if (!Regex.IsMatch(
+                codigoSeguridad ?? "",
+                @"^[0-9]{3}$"))
+            {
+                return "El código de seguridad debe contener 3 dígitos.";
+            }
+
+            // No se almacenan datos de tarjetas.
+            // El pago es únicamente una simulación.
+            return null;
+        }
+
+        // REGISTRO DEL PEDIDO Y ACTUALIZACION DEL STOCK
+
+        private async Task<IActionResult> RegistrarPedido(
+            string usuarioId,
+            List<ItemCarrito> carrito)
+        {
             await using var transaccion = await _context.Database
                 .BeginTransactionAsync(IsolationLevel.Serializable);
 
@@ -295,10 +268,7 @@ namespace ByteStore.Controllers
                 await _context.SaveChangesAsync();
                 await transaccion.CommitAsync();
 
-                // VACIAR EL CARRITO SOLO DESPUES
-                // DE CONFIRMAR LA COMPRA
-
-                HttpContext.Session.Remove(ClaveCarrito);
+                _carritoService.Vaciar();
 
                 return Ok(new
                 {
@@ -317,29 +287,5 @@ namespace ByteStore.Controllers
                 });
             }
         }
-
-        [HttpGet]
-        public async Task<IActionResult> MisPedidos()
-        {
-            var usuarioId = User.FindFirstValue(
-                ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(usuarioId))
-            {
-                return Challenge();
-            }
-
-            var pedidos = await _context.Pedidos
-                .AsNoTracking()
-                .Include(p => p.Detalles)
-                    .ThenInclude(d => d.Producto)
-                .Where(p => p.UsuarioId == usuarioId)
-                .OrderByDescending(p => p.Fecha)
-                .ToListAsync();
-
-            return View(pedidos);
-        }
     }
 }
-
-

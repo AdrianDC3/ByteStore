@@ -1,22 +1,38 @@
-
 using ByteStore.Data;
+using ByteStore.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuración de la base de datos.
+// =====================================================
+// CONFIGURACION DE LA BASE DE DATOS
+// =====================================================
+
 var connectionString = builder.Configuration
     .GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException(
         "Connection string 'DefaultConnection' not found.");
+
+if (builder.Environment.IsProduction() &&
+    connectionString.Contains(
+        "(localdb)",
+        StringComparison.OrdinalIgnoreCase))
+{
+    throw new InvalidOperationException(
+        "ByteStore necesita una conexion SQL Server de produccion. " +
+        "Configure ConnectionStrings__DefaultConnection en el hosting.");
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// Configuración de Identity con soporte para roles.
+// =====================================================
+// ASP.NET CORE IDENTITY
+// =====================================================
+
 builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 {
     options.SignIn.RequireConfirmedAccount = true;
@@ -24,10 +40,16 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-// Controladores y vistas MVC.
+// =====================================================
+// MVC
+// =====================================================
+
 builder.Services.AddControllersWithViews();
 
-// Configuración de sesiones para el carrito.
+// =====================================================
+// SESIONES Y CARRITO
+// =====================================================
+
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
@@ -37,9 +59,22 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Permite acceder a HttpContext desde los servicios.
+builder.Services.AddHttpContextAccessor();
+
+// Registrar el servicio del carrito.
+builder.Services.AddScoped<CarritoService>();
+
+// =====================================================
+// CONSTRUCCION DE LA APLICACION
+// =====================================================
+
 var app = builder.Build();
 
-// Configuración del entorno.
+// =====================================================
+// CONFIGURACION DEL ENTORNO
+// =====================================================
+
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
@@ -55,11 +90,14 @@ app.UseRouting();
 
 app.UseSession();
 
-// Autenticación y autorización.
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+// =====================================================
+// RUTAS MVC
+// =====================================================
 
 app.MapControllerRoute(
     name: "default",
@@ -69,7 +107,10 @@ app.MapControllerRoute(
 app.MapRazorPages()
    .WithStaticAssets();
 
-// Crear el rol Administrador si todavía no existe.
+// =====================================================
+// CREACION DEL ROL ADMINISTRADOR
+// =====================================================
+
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider
@@ -89,5 +130,9 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
+
+// =====================================================
+// INICIAR BYTESTORE
+// =====================================================
 
 app.Run();

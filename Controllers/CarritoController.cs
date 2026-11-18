@@ -1,68 +1,58 @@
 ﻿using ByteStore.Data;
 using ByteStore.Models;
+using ByteStore.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
 
 namespace ByteStore.Controllers
 {
     public class CarritoController : Controller
     {
         private readonly ApplicationDbContext _context;
-        private const string ClaveCarrito = "Carrito";
+        private readonly CarritoService _carritoService;
 
-        public CarritoController(ApplicationDbContext context)
+        public CarritoController(
+            ApplicationDbContext context,
+            CarritoService carritoService)
         {
             _context = context;
-        }
-
-        private List<ItemCarrito> ObtenerCarrito()
-        {
-            var datos = HttpContext.Session.GetString(ClaveCarrito);
-
-            if (string.IsNullOrEmpty(datos))
-                return new List<ItemCarrito>();
-
-            return JsonSerializer.Deserialize<List<ItemCarrito>>(datos)
-                   ?? new List<ItemCarrito>();
-        }
-
-        private void GuardarCarrito(List<ItemCarrito> carrito)
-        {
-            var datos = JsonSerializer.Serialize(carrito);
-            HttpContext.Session.SetString(ClaveCarrito, datos);
+            _carritoService = carritoService;
         }
 
         [HttpGet]
         public IActionResult Contenido()
         {
-            return PartialView("_ContenidoCarrito", ObtenerCarrito());
+            return PartialView(
+                "_ContenidoCarrito",
+                _carritoService.Obtener());
         }
 
         [HttpGet]
         public IActionResult Cantidad()
         {
-            var carrito = ObtenerCarrito();
-
-            int cantidad = carrito.Sum(item => item.Cantidad);
-
-            return Json(new { cantidad });
+            return Json(new
+            {
+                cantidad = _carritoService.ObtenerCantidad()
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Agregar(int productoId, int cantidad = 1)
+        public async Task<IActionResult> Agregar(
+            int productoId,
+            int cantidad = 1)
         {
             if (cantidad <= 0)
                 return BadRequest(new { error = "Cantidad inválida." });
 
             var producto = await _context.Productos
-                .FirstOrDefaultAsync(p => p.Id == productoId && p.Activo);
+                .FirstOrDefaultAsync(p =>
+                    p.Id == productoId && p.Activo);
 
             if (producto == null)
                 return NotFound(new { error = "Producto no encontrado." });
 
-            var carrito = ObtenerCarrito();
+            var carrito = _carritoService.Obtener();
 
             var item = carrito.FirstOrDefault(
                 i => i.ProductoId == productoId);
@@ -92,28 +82,39 @@ namespace ByteStore.Controllers
                 item.Cantidad += cantidad;
             }
 
-            GuardarCarrito(carrito);
+            _carritoService.Guardar(carrito);
 
-            return Ok(new { mensaje = "Producto agregado correctamente." });
+            return Ok(new
+            {
+                mensaje = "Producto agregado correctamente."
+            });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Actualizar(int productoId, int cantidad)
+        public async Task<IActionResult> Actualizar(
+            int productoId,
+            int cantidad)
         {
             if (cantidad <= 0)
                 return BadRequest(new { error = "Cantidad inválida." });
 
-            var carrito = ObtenerCarrito();
+            var carrito = _carritoService.Obtener();
 
             var item = carrito.FirstOrDefault(
                 i => i.ProductoId == productoId);
 
             if (item == null)
-                return NotFound(new { error = "Producto no encontrado en el carrito." });
+            {
+                return NotFound(new
+                {
+                    error = "Producto no encontrado en el carrito."
+                });
+            }
 
             var producto = await _context.Productos
-                .FirstOrDefaultAsync(p => p.Id == productoId && p.Activo);
+                .FirstOrDefaultAsync(p =>
+                    p.Id == productoId && p.Activo);
 
             if (producto == null)
                 return NotFound(new { error = "Producto no disponible." });
@@ -123,7 +124,7 @@ namespace ByteStore.Controllers
 
             item.Cantidad = cantidad;
 
-            GuardarCarrito(carrito);
+            _carritoService.Guardar(carrito);
 
             return Ok(new { mensaje = "Cantidad actualizada." });
         }
@@ -132,16 +133,13 @@ namespace ByteStore.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Eliminar(int productoId)
         {
-            var carrito = ObtenerCarrito();
+            var carrito = _carritoService.Obtener();
 
             carrito.RemoveAll(i => i.ProductoId == productoId);
 
-            GuardarCarrito(carrito);
+            _carritoService.Guardar(carrito);
 
             return Ok(new { mensaje = "Producto eliminado." });
         }
     }
 }
-
-
-
