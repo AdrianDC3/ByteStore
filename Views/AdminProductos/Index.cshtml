@@ -1,18 +1,23 @@
-﻿@model List<ByteStore.Models.Pedido>
+﻿@model List<ByteStore.Models.Producto>
 
 @{
-    ViewData["Title"] = "Pedidos y ventas";
+    ViewData["Title"] = "Administrar productos";
 }
 
 <div class="container mt-4 mb-5">
 
-    <!-- TITULO -->
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- TITULO Y NUEVO PRODUCTO -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
 
         <h2 class="text-success mb-0">
-            📋 Pedidos y ventas
+            📦 Administración de productos
         </h2>
+
+        <a asp-controller="AdminProductos"
+           asp-action="Crear"
+           class="btn btn-success">
+            + Nuevo producto
+        </a>
 
     </div>
 
@@ -31,50 +36,15 @@
         </div>
     }
 
-    <!-- RESUMEN GENERAL -->
+    <!-- BUSCADOR Y FILTROS -->
+    <partial name="_FiltrosAdmin" />
 
-    <partial name="_ResumenVentas" model="Model" />
+    <!-- CANTIDAD DE PRODUCTOS -->
+    <p class="text-secondary mb-4">
+        Productos encontrados: @Model.Count
+    </p>
 
-    <!-- LISTADO DE PEDIDOS -->
-    @if (!Model.Any())
-    {
-        <div class="card bg-dark border-secondary text-center">
-
-            <div class="card-body py-5">
-
-                <h4 class="text-light">
-                    Todavía no hay pedidos registrados
-                </h4>
-
-                <p class="text-secondary mb-0">
-                    Las compras realizadas por los clientes aparecerán acá.
-                </p>
-
-            </div>
-
-        </div>
-    }
-    else
-    {
-        <partial name="_TablaVentas" model="Model" />
-    }
-
-    <!-- VOLVER -->
-
-    <a asp-controller="Productos"
-       asp-action="Index"
-       class="btn btn-outline-secondary mt-3">
-
-        Volver al catálogo
-
-    </a>
+    <!-- TABLA DE PRODUCTOS -->
+    <partial name="_TablaProductos" model="Model" />
 
 </div>
-
-@section Styles {
-
-    <link rel="stylesheet"
-          href="~/css/admin-pedidos.css"
-          asp-append-version="true" />
-
-}
